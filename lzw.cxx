@@ -11,12 +11,18 @@ class LZW {
         map<string, int> dictionary;
         string buffer;
 
-        string findByValue(int val) {
-            cout << "si tu peux m'aider sur ce coup, j'te serai reconnaissant" << endl;
-            cout << "ça doit etre une couille de nullptr" << endl;
-            cout << dictionary.find("0")->second;
+        void debugDictionary() {
             if(!dictionary.empty()) {
-            cout << "LolILOL";
+                for(map<string, int>::iterator i = dictionary.begin(); i != dictionary.end(); ++i) {
+                    cout << i->first << " : " << i->second << endl;
+                }
+            } else {
+                cout << "empty" << endl;
+            }
+        }
+
+        string findByValue(int val) {
+            if(!dictionary.empty()) {
                 for(map<string, int>::iterator i = dictionary.begin(); i != dictionary.end(); ++i) {
                     if(i->second == val) {
                         return i->first;
@@ -24,26 +30,30 @@ class LZW {
                 }
             }
 
-            return NULL;
+            return "";
         }
 
     public : 
         LZW() {
-            dictionary["0"] = -1;
-            buffer = "";
+        }
+
+        ~LZW() {
+            cout << "LZW detruit." << endl;
         }
 
         void decode(string path) {
             ifstream inputFile(path, ifstream::in);
+            ofstream output(path + "_DECODE");
             map<string, int>::iterator iter;
+            int codeDic = 256;
 
-            //char prev = NULL;
+            int step = 0;
             char codeRead[SIZE_CODE];
             int code;
             string charRead;
-            buffer = "";
+            buffer = ""; // prev
 
-            while(!inputFile.eof() && !inputFile.fail()) {
+            do {
                 inputFile.getline(codeRead, SIZE_CODE, ' ');
 
                 if(!inputFile.fail()) {
@@ -54,22 +64,43 @@ class LZW {
                     } else {
                         charRead = this->findByValue(code);
                     }
-            cout << charRead << endl;
-                        // nouvelle entree dans le dico
-/*                        if((iter = buffer.find(buffer)) != dictionary.end()) {
-                            dictionary[ascii] = codeRead;
-                        }
-                        cout << buffer << endl;
-                        cout << (char)ascii << endl;
-                    } else {
 
-                    }*/
+                    cout << "lu : " << charRead << endl;
+                    output << charRead;
+                    buffer += charRead;
+                    cout << "buffer : " << buffer << endl;
+
+                    if(step > 0) {
+                        int i = 1;
+                        bool found = true;
+                        string word(buffer, 0, 1);
+                        // analyse du buffer a partir de ses 2 1eres lettres
+                        while(found && i < buffer.size()) {
+                            word += buffer[i++];
+                            cout << "word : " << word << endl;
+                            // nouvelle entree dans le dico
+                            if((iter = dictionary.find(word)) == dictionary.end()) {
+                                dictionary[word] = codeDic++;
+                                found = false;
+                            }
+                        }
+                    }
+
+                    cout << "-----" << endl;
+                    this->debugDictionary();
+                    cout << "-----" << endl;
+                    cout << endl;
+
+                    buffer = charRead;
+                    ++step;
                 } else {
                     cerr << "code trop important lu (> 10^SIZE_CODE)" << endl; 
                 }
-            }
+            } while(!inputFile.eof() && !inputFile.fail());
+
             inputFile.close();
-        }
+            output.close();
+        } 
 };
 
 int main() {
