@@ -35,10 +35,46 @@ class LZW {
 
     public : 
         LZW() {
+            for(int i = 0; i < 256; ++i){
+                string str = string(1, (char)i);
+                dictionary[str] = i;
+            } 
         }
 
         ~LZW() {
             cout << "LZW detruit." << endl;
+        }
+
+        void encode(string path) {
+            ifstream inputFile(path, ifstream::in);
+            ofstream output(path + "_ENCODE");
+            map<string, int>::iterator iter;
+            int codeDic = 255;
+
+            string tmp;
+            string strRead;
+            string charRead;
+            buffer = "";
+
+            while(getline(inputFile, tmp)) {
+                strRead += tmp;
+            }
+
+            buffer = strRead[0];
+            for(int i = 1; i < strRead.size(); ++i) {
+                buffer += strRead[i];
+                    if((iter = dictionary.find(buffer)) == dictionary.end()) {
+                        dictionary[buffer] = ++codeDic;
+                        char lastItem = buffer[buffer.size()-1];
+                        buffer = "";
+                        buffer = lastItem;
+                    }
+            }
+
+            cout << "-----" << endl;
+            this->debugDictionary();
+            cout << "-----" << endl;
+            cout << endl;
         }
 
         void decode(string path) {
@@ -105,5 +141,6 @@ class LZW {
 
 int main() {
     LZW * lzw = new LZW();
-    lzw->decode("./text.lzw");
+    //lzw->decode("./text.lzw");
+    lzw->encode("./text.lzw_DECODE");
 }
