@@ -2,7 +2,7 @@
 #include <fstream>
 #include <map>
 
-#define SIZE_CODE 5
+#define SIZE_CODE 10000
 
 using namespace std;
 
@@ -35,25 +35,33 @@ class LZW {
 
     public : 
         LZW() {
+            init (); 
+        }
+		
+		void init (){
+			dictionary.clear();
             for(int i = 0; i < 256; ++i){
                 string str = string(1, (char)i);
                 dictionary[str] = i;
-            } 
-        }
-
+            }
+		}		
+		
         ~LZW() {
             cout << "LZW detruit." << endl;
         }
 
         void encode(string path) {
-            ifstream inputFile(path, ifstream::in);
+			init();
+			ifstream inputFile(path, ifstream::in);
             ofstream output(path + "_ENCODE");
             map<string, int>::iterator iter;
-            int codeDic = 255;
 
+
+            int codeDic = 255;
             string tmp;
             string strRead;
-            string charRead;
+			string tampon; 
+            int codeEmis;
             buffer = "";
 
             while(getline(inputFile, tmp)) {
@@ -61,23 +69,35 @@ class LZW {
             }
 
             buffer = strRead[0];
+			tampon = strRead[0];
             for(int i = 1; i < strRead.size(); ++i) {
                 buffer += strRead[i];
-                    if((iter = dictionary.find(buffer)) == dictionary.end()) {
-                        dictionary[buffer] = ++codeDic;
-                        char lastItem = buffer[buffer.size()-1];
-                        buffer = "";
-                        buffer = lastItem;
-                    }
+				if((iter = dictionary.find(buffer)) == dictionary.end()) {
+					dictionary[buffer] = ++codeDic;
+                    cout << tampon << " " << buffer << " " << (dictionary.find(tampon))->second  << endl;
+                    output << (dictionary.find(tampon))->second  << " ";
+                    char lastItem = buffer[buffer.size()-1];
+                    buffer = "";
+                    buffer = lastItem;
+					tampon = buffer;
+                } else {
+					tampon = buffer;
+				}
             }
-
+            output << (dictionary.find(tampon))->second;
             cout << "-----" << endl;
             this->debugDictionary();
             cout << "-----" << endl;
             cout << endl;
+
+
+			cout << "FIN ENCODE ****************************************" << endl << endl;
+
+
         }
 
         void decode(string path) {
+            init();
             ifstream inputFile(path, ifstream::in);
             ofstream output(path + "_DECODE");
             map<string, int>::iterator iter;
@@ -91,6 +111,8 @@ class LZW {
 
             do {
                 inputFile.getline(codeRead, SIZE_CODE, ' ');
+
+                cout << "coderead : " << codeRead << endl;
 
                 if(!inputFile.fail()) {
                     // caractere lu
@@ -123,7 +145,7 @@ class LZW {
                     }
 
                     cout << "-----" << endl;
-                    this->debugDictionary();
+                    //this->debugDictionary();
                     cout << "-----" << endl;
                     cout << endl;
 
@@ -141,6 +163,6 @@ class LZW {
 
 int main() {
     LZW * lzw = new LZW();
-    //lzw->decode("./text.lzw");
-    lzw->encode("./text.lzw_DECODE");
+    lzw->encode("./text.lzw");
+    lzw->decode("./text.lzw_ENCODE");
 }
