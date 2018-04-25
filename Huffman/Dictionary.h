@@ -2,6 +2,9 @@
 #define DICTIONARY_H
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
 #include <map>
 
 using namespace std;
@@ -16,6 +19,10 @@ public:
 	
 	vector<T> decode(string s);
 	string encode(vector<T> v);
+
+	// fichiers
+	void print_dictionary(ofstream& dest);
+	void load_dictionary(ifstream& src); 
 
 private:
 	
@@ -79,6 +86,52 @@ string Dictionary<T>::encode(vector<T> v){
 	}
 	
 	return res;
+
+}
+
+template<typename T>
+void Dictionary<T>::print_dictionary(ofstream& dest){
+
+	typename map<string, T>::iterator it;
+	for(it = m_table.begin(); it != m_table.end(); it ++){
+
+		dest << it->first << ":" << it->second << endl;
+
+	}
+
+}
+
+template<>
+void Dictionary<int>::load_dictionary(ifstream& src){
+
+	// reinitialiser le dictionaire
+	m_table.clear();
+	m_reverse_table.clear();
+
+	string line, s1, s2;
+
+	int pos;
+
+	// tant qu'il reste des trucs a lire
+	while(src >> line){
+
+		// on coupe la ligne en deux sur le caractere ':'
+		pos = line.find(":");
+		s1 = line.substr(0,pos);
+		s2 = line.substr(pos + 1);
+		
+		// transformer s2 en int
+		int sum = 0;
+		for(int i = 0; i < s2.size(); i++){
+
+			int v = s2[i] - '0';
+			sum += v*pow(10,s2.size()-i-1);
+
+		}
+
+		add_value(sum,s1);
+
+	}
 
 }
 

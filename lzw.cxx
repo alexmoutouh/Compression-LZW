@@ -163,6 +163,6 @@ class LZW {
 
 int main() {
     LZW * lzw = new LZW();
-    lzw->encode("./text.lzw");
-    lzw->decode("./text.lzw_ENCODE");
+    lzw->encode("./loremIpsum.txt");
+    lzw->decode("./loremIpsum.txt_ENCODE");
 }

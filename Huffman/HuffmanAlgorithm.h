@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "HuffmanLeaf.h"
 #include "HuffmanNode.h"
@@ -15,6 +16,7 @@ class HuffmanAlgorithm{
 public:
 
 	HuffmanAlgorithm();
+	HuffmanAlgorithm(vector<T> entry);
 	virtual ~HuffmanAlgorithm();
 	void add_value(const T& value, int occurence);
 	void compute_tree();
@@ -30,6 +32,48 @@ private:
 
 template<typename T>
 HuffmanAlgorithm<T>::HuffmanAlgorithm(){ m_root = NULL; }
+
+template<typename T>
+HuffmanAlgorithm<T>::HuffmanAlgorithm(vector<T> entry){
+
+	m_root = NULL;
+
+	// table des occurences
+	map<T,int> occurences;
+
+	T val;
+
+	// pour tous les caracteres en entree
+	for(int i = 0; i < entry.size(); i++){
+
+		val = entry[i];
+		// si le caractere est deja dans la table
+		if(occurences.find(val) != occurences.end()){
+
+			// mise à jour de la table
+			occurences[val] ++;
+
+		}
+		else{
+
+			// creation d'une entree dans la table
+			occurences[val] = 1;
+
+		}
+
+	}
+
+	typename map<T,int>::iterator it;
+
+	// pour tous les caracteres differents trouves
+	for(it = occurences.begin(); it != occurences.end(); it++){
+
+		// ajout de la valeur dans la table de l'algorithme
+		add_value(it->first, it->second);
+
+	}
+
+}
 
 template<typename T>
 HuffmanAlgorithm<T>::~HuffmanAlgorithm(){
