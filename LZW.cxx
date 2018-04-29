@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <vector>
 #include <map>
 
@@ -57,7 +58,7 @@ class LZW {
             cout << "****** Compression LZW debut ******" << endl << endl;
             init();
             ifstream inputFile(path, ifstream::in);
-            ofstream output(path + "_ENCODE");
+            ofstream output(path + "_LZW_ENCODED");
             map<string, int>::iterator iter;
             vector<int> vectorReturn;
 
@@ -93,82 +94,85 @@ class LZW {
             this->debugDictionary();
             cout << endl;
 
-            cout << "****** Compression LZW fin ******" << endl << endl;
+            cout << "****** Compression LZW fin ********" << endl << endl;
 
             return vectorReturn;
         }
 
         void decode(string path) {
             cout << "****** Decompression LZW debut ******" << endl << endl;
+
             this->dictionary.clear();
             ifstream inputFile(path, ifstream::in);
-            ofstream output(path + "_DECODE");
+            ofstream output(path + "_LZW_DECODED");
             map<string, int>::iterator iter;
             int codeDic = 256;
 
             int step = 0;
-            char codeRead[SIZE_CODE];
+            string codeRead;    // code lu en tant que string dans le fichier
             int code;
             string charRead;
-            this->buffer = ""; // prev
+            this->buffer = "";  // prev
 
-            do {
-                inputFile.getline(codeRead, SIZE_CODE, ' ');
+            size_t pos = 0;
+            string strRead;
+            string tmp;
+            string delimiter = " ";
 
-                if(!inputFile.fail()) {
-                    // caractere lu
-                    code = stoi(codeRead);
-                    cout << "code lu : " << code;
-                    if(0 <= code && code < 256) {
-                        charRead = (char)code; 
-                    } else {
-                        charRead = this->findByValue(code);
-                    }
+            while(getline(inputFile, tmp)) {
+                strRead += tmp;
+            }
+            cout << "strRead : " << endl << strRead << endl;
+            inputFile.close();
 
-                    cout << "item lu : " << charRead << endl;
-                    output << charRead;
-                    this->buffer += charRead;
+            while((pos = strRead.find(delimiter)) != string::npos) {
+                codeRead = strRead.substr(0, pos);
+                code = stoi(codeRead);
+                cout << "code lu : " << code << "check ";
 
-                    // theoriquement les premiers codes sont juste des codes
-                    // ascii si l'encodage a bien ete realise...
-                    if(step > 0) {
-                        int i = 1;
-                        bool found = true;
-                        string word(this->buffer, 0, 1);
-                        // analyse du buffer a partir de ses 2 1eres lettres
-                        while(found && i < this->buffer.size()) {
-                            word += this->buffer[i++];
-                            // nouvelle entree dans le dico
-                            if((iter = dictionary.find(word)) == dictionary.end()) {
-                                dictionary[word] = codeDic++;
-                                found = false;
-                            }
+                if(0 <= code && code < 256) {
+                    charRead = (char)code; 
+                } else {
+                    charRead = this->findByValue(code);
+                }
+
+                cout << "item lu : " << charRead << endl;
+                output << charRead;
+                this->buffer += charRead;
+
+                // theoriquement les premiers codes sont juste des codes
+                // ascii si l'encodage a bien ete realise...
+                if(step > 0) {
+                    int i = 1;
+                    bool found = true;
+                    string word(this->buffer, 0, 1);
+                    // analyse du buffer a partir de ses 2 1eres lettres
+                    while(found && i < this->buffer.size()) {
+                        word += this->buffer[i++];
+                        // nouvelle entree dans le dico
+                        if((iter = dictionary.find(word)) == dictionary.end()) {
+                            dictionary[word] = codeDic++;
+                            found = false;
                         }
                     }
-
-                    //this->debugDictionary();
-
-                    this->buffer = charRead;
-                    ++step;
-                } else {
-                    cerr << "code trop important lu (> 10^SIZE_CODE)" << endl; 
                 }
-            } while(!inputFile.eof() && !inputFile.fail());
 
-            inputFile.close();
+                //this->debugDictionary();
+
+                this->buffer = charRead;
+                ++step;
+
+                strRead.erase(0, pos + delimiter.length());
+            }
+
             output.close();
 
-            cout << "****** Decompression LZW fin ******" << endl << endl;
+            cout << "****** Decompression LZW fin ********" << endl << endl;
         } 
 };
 
 /*int main() {
     LZW * lzw = new LZW();
     vector<int> test = lzw->encode("./loremIpsum.txt");
-    lzw->decode("./loremIpsum.txt_ENCODE");
-
-    cout << "test : " << endl;
-    for(int i : test) {
-        cout << i << " ";
-    }
+    lzw->decode("./loremIpsum.txt_LZWHUFFMAN_ENCODED_HUFFMAN_DECODED");
 }*/

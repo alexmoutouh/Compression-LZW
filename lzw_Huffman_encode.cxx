@@ -12,40 +12,28 @@ int main(int argc, char* argv[]){
     }
 
     LZW * lzw = new LZW();
-    // fichier compresse (nomme : <nom>+_ENCODE) par LZW genere 
-    vector<int> vectorEncode= lzw->encode(argv[1]);
+    // generation fichier compresse (nomme : <nom>+_ENCODE) par LZW 
+    vector<int> vectorEncode = lzw->encode(argv[1]);
 
     HuffmanAlgorithm<int> ha(vectorEncode);
     ha.compute_tree();
 
     cout << "Creation du dictionnaire HUFFMAN..." << endl;
     Dictionary<int> d = ha.create_dictionary();
-    ofstream output("dico.txt");
-    d.print_dictionary(output);
+    string str(argv[1]);
+    ofstream dicoOut(str + ".dico");
+    d.print_dictionary(dicoOut);
     cout << "Dictionnaire HUFFMAN cree." << endl;
 
     cout << "****** Compression HUFFMAN debut ******" << endl;
     string s = d.encode(vectorEncode);
     cout << "****** Compression HUFFMAN fin ******" << endl;
 
-    // fichier compresse (nomme : <nom>+_LZWHUFFMAN_ENCODED) par LZW puis Huffman genere 
-    string str(argv[1]);
+    // generation fichier compresse (nomme : <nom>+_LZWHUFFMAN_ENCODED) par LZW puis Huffman 
     ofstream outputEncoded(str + "_LZWHUFFMAN_ENCODED");
     outputEncoded << s;
 
-    vector<int> decoded = d.decode(s);
-
-    if(vectorEncode.size() == decoded.size()){
-
-    cout << "decoded" << endl;
-    for(int i=0; i < vectorEncode.size(); i++)
-    cout << vectorEncode[i] << " : " << decoded[i] << endl;
-
-    }
-
-    ifstream input("dico.txt");
-
-    d.load_dictionary(input);
-
+    dicoOut.close();
+    outputEncoded.close();
     return 0;
 }
