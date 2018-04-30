@@ -74,7 +74,7 @@ class LZW {
 
             this->buffer = strRead[0];
             tampon = strRead[0];
-            for(int i = 1; i < strRead.size(); ++i) {
+            for(unsigned i = 1; i < strRead.size(); ++i) {
                 this->buffer += strRead[i];
                 if((iter = dictionary.find(this->buffer)) == dictionary.end()) {
                     dictionary[this->buffer] = ++codeDic;
@@ -128,7 +128,7 @@ class LZW {
             while((pos = strRead.find(delimiter)) != string::npos) {
                 codeRead = strRead.substr(0, pos);
                 code = stoi(codeRead);
-                cout << "code lu : " << code << "check ";
+                cout << "code lu : " << code << " ";
 
                 if(0 <= code && code < 256) {
                     charRead = (char)code; 
@@ -143,7 +143,7 @@ class LZW {
                 // theoriquement les premiers codes sont juste des codes
                 // ascii si l'encodage a bien ete realise...
                 if(step > 0) {
-                    int i = 1;
+                    unsigned i = 1;
                     bool found = true;
                     string word(this->buffer, 0, 1);
                     // analyse du buffer a partir de ses 2 1eres lettres
