@@ -35,13 +35,11 @@ int main(int argc, char* argv[]){
     for(int code : decoded) {
         decodedHuffOut << code << " ";
     }
-/*    for(int i = 0; i < decoded.size() - 1; ++i) {
-    }
-    decodedHuffOut << decoded[decoded.size() - 1];*/
+
     decodedHuffOut.close();
 
     LZW * lzw = new LZW();
-    cout << "decompression de : " << str << "check" << endl;
+    cout << "decompression de : " << str << endl;
     lzw->decode(str);
 
     inputDico.close();

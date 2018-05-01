@@ -119,17 +119,21 @@ class LZW {
             string tmp;
             string delimiter = " ";
 
+            // mise du contenu dans une string
             while(getline(inputFile, tmp)) {
                 strRead += tmp;
             }
             cout << "strRead : " << endl << strRead << endl;
             inputFile.close();
 
+            // lecture code par code
             while((pos = strRead.find(delimiter)) != string::npos) {
                 codeRead = strRead.substr(0, pos);
                 code = stoi(codeRead);
                 cout << "code lu : " << code << " ";
 
+                // cette condition fait que le dictionnaire n'est pas obligé
+                // d'être initialement rempli avec la table ASCII
                 if(0 <= code && code < 256) {
                     charRead = (char)code; 
                 } else {
@@ -138,6 +142,7 @@ class LZW {
 
                 cout << "item lu : " << charRead << endl;
                 output << charRead;
+                // concatenation pour analyse
                 this->buffer += charRead;
 
                 // theoriquement les premiers codes sont juste des codes
@@ -171,8 +176,3 @@ class LZW {
         } 
 };
 
-/*int main() {
-    LZW * lzw = new LZW();
-    vector<int> test = lzw->encode("./loremIpsum.txt");
-    lzw->decode("./loremIpsum.txt_LZWHUFFMAN_ENCODED_HUFFMAN_DECODED");
-}*/
